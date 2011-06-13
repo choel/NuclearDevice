@@ -14,6 +14,7 @@ public class nuclearDevice extends JavaPlugin {
 	//setup and stuff
     private static nuclearDevice thisPlugin = null; //I don't know what this does. Necessary for fancy log
     private final nuclearBlockListener blockListener = new nuclearBlockListener(this); //the player listener.
+    private final nuclearEntityListener entityListener = new nuclearEntityListener(this); //the entity listener.
 	
 	public static Logger log = Logger.getLogger("Minecraft"); //logger object. can be written to directly with "log.info("herp derp")
     
@@ -35,6 +36,7 @@ public class nuclearDevice extends JavaPlugin {
     public void onEnable(){  //onEnable is called after onLoad
 		PluginManager pm = this.getServer().getPluginManager(); //register this plugin
 		pm.registerEvent(Event.Type.REDSTONE_CHANGE, blockListener, Event.Priority.Normal, this); //register our playerListener
+		pm.registerEvent(Event.Type.ITEM_SPAWN, entityListener, Event.Priority.Normal, this); //register our playerListener
 		//pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Normal, this); //register our serverListener (not needed)?
 		log_It("info", "Enabled started");
     }
