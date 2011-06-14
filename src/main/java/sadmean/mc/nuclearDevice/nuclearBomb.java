@@ -98,7 +98,6 @@ public class nuclearBomb {
 	public void explode(int time) {
 		World explodeWorld = centerDiamondBlockLocation.getWorld();
 		nuclearDevice.log_It("finest", "attempted exploson command");
-		//Chunk epicenter;
 		nuclearDevice.log_It("fine", "world name is " + explodeWorld.getName());
 
 		if (lowerCap && upperCap) {
@@ -119,8 +118,10 @@ public class nuclearBomb {
 				}
 				entNumber++;
 			}
-			//epicenter = explodeWorld.getChunkAt(centerDiamondBlockLocation);
 
+			//and don't forget to remove the creeper!
+			checkCreeper.remove();
+			
 			//warn all players
 				int Xmessage = centerDiamondBlockLocation.getBlockX();
 				int Zmessage = centerDiamondBlockLocation.getBlockZ();
