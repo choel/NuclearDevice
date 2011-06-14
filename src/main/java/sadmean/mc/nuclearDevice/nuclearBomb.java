@@ -96,30 +96,35 @@ public class nuclearBomb {
 		nuclearDevice.log_It("fine", "world name is " + explodeWorld.getName());
 
 		if (lowerCap && upperCap) {
-
-			nuclearDevice.log_It("info", "Bomb armed on " + explodeWorld.getName() + ". DUN DUN DUN.");
-			explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
-
-			//This is where shit gets weird. We have to create an entity at the epicenter and then use that to collect ALL entites nearby
-			//Then we check to see what these entites are. IF they are items. WE remove() THEM!
-			LivingEntity checkCreeper = explodeWorld.spawnCreature(centerDiamondBlockLocation, CreatureType.CREEPER);
-			ents = checkCreeper.getNearbyEntities(yield, yield, yield);
 			
-			int entNumber = 0;
-			while (entNumber < ents.size()) {
-				ent = ents.get(entNumber);
-				if (ent instanceof org.bukkit.entity.Item) {
-					ent.remove();
-				}
-				entNumber++;
+			if (nuclearDevice.useSimulatedExplosion) {
+				//use simulated Explosion
 			}
-
-			//and don't forget to remove the creeper!
-			checkCreeper.remove();
+			else {
 			
+				nuclearDevice.log_It("info", "Bomb armed on " + explodeWorld.getName() + ". DUN DUN DUN.");
+				explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
+
+				//This is where shit gets weird. We have to create an entity at the epicenter and then use that to collect ALL entites nearby
+				//Then we check to see what these entites are. IF they are items. WE remove() THEM!
+				LivingEntity checkCreeper = explodeWorld.spawnCreature(centerDiamondBlockLocation, CreatureType.CREEPER);
+				ents = checkCreeper.getNearbyEntities(yield, yield, yield);
+			
+				int entNumber = 0;
+				while (entNumber < ents.size()) {
+					ent = ents.get(entNumber);
+					if (ent instanceof org.bukkit.entity.Item) {
+						ent.remove();
+					}
+					entNumber++;
+				}
+
+				//and don't forget to remove the creeper!
+				checkCreeper.remove();
+			}
 			//warn all players
-				int Xmessage = centerDiamondBlockLocation.getBlockX();
-				int Zmessage = centerDiamondBlockLocation.getBlockZ();
+				int Xmessage = eventLocation.getBlockX();
+				int Zmessage = eventLocation.getBlockZ();
 				int playerNumber = 0;
 				List<Player> players = explodeWorld.getPlayers();
 				while (playerNumber < players.size()) {

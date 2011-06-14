@@ -40,6 +40,7 @@ public class nuclearDevice extends JavaPlugin {
 	
     public static int capTypeID = 41;
     public static int payloadTypeID = 57;
+    public static boolean useSimulatedExplosion = false;
     //default cap/payload. overwritten by yaml
     
     public void onEnable(){  //onEnable is called after onLoad
@@ -55,7 +56,8 @@ public class nuclearDevice extends JavaPlugin {
 
 	     		Configuration configYAML = getThisPlugin().getConfiguration(); //... load the blank new file ...
 	     		configYAML.setProperty("nuclearValues.capTypeID", capTypeID); //..set defaultAir
-	     		configYAML.setProperty("nuclearValues.pumpkinAir", payloadTypeID); //... then set some values`
+	     		configYAML.setProperty("nuclearValues.payloadTypeID", payloadTypeID); //... then set some values`
+	     		configYAML.setProperty("nuclearValues.useSimulatedExplosion", useSimulatedExplosion); //... then set some values`
 
 	     		if(!configYAML.save()) { //attempt to save, if fails then
 	     			log_It("severe", "Attempted to save config.yml, got saving error!"); //IT FAILED!
@@ -72,6 +74,7 @@ public class nuclearDevice extends JavaPlugin {
 		configYAML.load();
 		capTypeID = configYAML.getInt("nuclearValues.capTypeID", 0);
 		payloadTypeID = configYAML.getInt("nuclearValues.payloadTypeID", 0);
+		useSimulatedExplosion = configYAML.getBoolean("nuclearValues.useSimulatedExplosion", false);
 		
 		if(capTypeID == 0 && payloadTypeID == 0) {
 			log_It("severe", "both cap and payload returned 0");
