@@ -55,7 +55,7 @@ public class nuclearBomb {
 			}
 		
 			//make sure we have gold caps, nigger!
-			if(holderBlock.getTypeId() == capTypeID) lowerCap = true; //we're out of that while loop. lets see if that was a cap
+			if(holderBlock.getTypeId() == capTypeID) lowerCap = true; bottomGoldBlockLocation = holderBlock.getLocation();//we're out of that while loop. lets see if that was a cap
 			
 			nuclearDevice.log_It("fine", "checked lowerCap type is " + Integer.toString(holderBlock.getTypeId()) + " but our bool is " + Boolean.toString(lowerCap));
 		
@@ -73,7 +73,7 @@ public class nuclearBomb {
 				holderBlock = newLocation.getBlock();
 				totalDiamondBlocks++;			
 			}
-		if(holderBlock.getTypeId() == capTypeID) upperCap = true;
+		if(holderBlock.getTypeId() == capTypeID) upperCap = true; topGoldBlockLocation = holderBlock.getLocation();
 		nuclearDevice.log_It("fine", "checked upperCap type is " + Integer.toString(holderBlock.getTypeId()) + " but our bool is " + Boolean.toString(lowerCap));
 		
 		//at this point, we have our total diamond blocks and gold caps. 
@@ -82,8 +82,14 @@ public class nuclearBomb {
 		yield = totalDiamondBlocks * 9;
 		yield = totalDiamondBlocks + yield; //add total diamond blocks back into the yield, so each block is worth more then the last
 		
+		//get our center diamondblock by using our top and bottom gold blocks
+		
+		double diamondY = (topGoldBlockLocation.getY() + bottomGoldBlockLocation.getY()) / 2;
+		centerDiamondBlockLocation = eventLocation;
+		centerDiamondBlockLocation.setY(diamondY);
+		
+		
 		} else {
-			
 		
 			nuclearDevice.log_It("fine", "This is not a valid bomb design");
 	
@@ -92,13 +98,18 @@ public class nuclearBomb {
 	
 	public void explode(int time) {
 		World explodeWorld = centerDiamondBlockLocation.getWorld();
-		nuclearDevice.log_It("finest", "attempted exploson command");
+		nuclearDevice.log_It("finest", "attempting exploson command");
 		nuclearDevice.log_It("fine", "world name is " + explodeWorld.getName());
 
 		if (lowerCap && upperCap) {
 			
 			if (nuclearDevice.useSimulatedExplosion) {
-				//use simulated Explosion
+				simulatedExplosion explosion = new simulatedExplosion(centerDiamondBlockLocation, yield);
+				if(explosion.explode()) {
+					nuclearDevice.log_It("info", "Bomb armed on " + explodeWorld.getName() + ". DUN DUN DUN.");
+				} else {
+					nuclearDevice.log_It("warning", "simulated explosion failed");
+				}
 			}
 			else {
 			
