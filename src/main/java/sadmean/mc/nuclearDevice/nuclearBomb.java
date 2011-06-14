@@ -1,8 +1,6 @@
 package sadmean.mc.nuclearDevice;
 
 import java.util.List;
-
-
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -27,8 +25,8 @@ public class nuclearBomb {
 	public Player player; //value used to manipulate our list of players
 	
 	//these values mark what block types are cap/exploder
-	int capTypeID = 41; //gold by default (this value is what makes the caps)
-	int payloadTypeID = 57; //diamond (this value is what adds to yield)
+	int capTypeID = nuclearDevice.capTypeID; //gold by default (this value is what makes the caps)
+	int payloadTypeID = nuclearDevice.payloadTypeID; //diamond (this value is what adds to yield)
 	
 	//Constructor
 	public nuclearBomb(Location givenLocation) {

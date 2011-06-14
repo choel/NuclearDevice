@@ -1,15 +1,20 @@
 package sadmean.mc.nuclearDevice;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.logging.Logger;
-
-//import org.bukkit.event.Event;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.config.Configuration;
 
 
 public class nuclearDevice extends JavaPlugin {
+	
+	//needed files
+	static String mainDirectory = "plugins/nuclearDevice";
+	static public File configFile = new File(mainDirectory + File.separator + "config.yml");
 	
 	//setup and stuff
     private static nuclearDevice thisPlugin = null; //I don't know what this does. Necessary for fancy log
@@ -33,12 +38,48 @@ public class nuclearDevice extends JavaPlugin {
         setThisPlugin(this); //not 100% sure
     }
 	
+    public static int capTypeID = 41;
+    public static int payloadTypeID = 57;
+    //default cap/payload. overwritten by yaml
+    
     public void onEnable(){  //onEnable is called after onLoad
 		PluginManager pm = this.getServer().getPluginManager(); //register this plugin
 		pm.registerEvent(Event.Type.REDSTONE_CHANGE, blockListener, Event.Priority.Normal, this); //register our playerListener
 		pm.registerEvent(Event.Type.ITEM_SPAWN, entityListener, Event.Priority.Normal, this); //register our playerListener
 		//pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Normal, this); //register our serverListener (not needed)?
 		log_It("info", "Enabled started");
+		new File(mainDirectory).mkdir();  //makes our directory if needed
+		if(!configFile.exists()){ //if your config does not exist then ...
+	         try { 
+	             configFile.createNewFile(); //... we create it then ...
+
+	     		Configuration configYAML = getThisPlugin().getConfiguration(); //... load the blank new file ...
+	     		configYAML.setProperty("nuclearValues.capTypeID", capTypeID); //..set defaultAir
+	     		configYAML.setProperty("nuclearValues.pumpkinAir", payloadTypeID); //... then set some values`
+
+	     		if(!configYAML.save()) { //attempt to save, if fails then
+	     			log_It("severe", "Attempted to save config.yml, got saving error!"); //IT FAILED!
+	     		}
+	         } catch (IOException ex) { 
+	             ex.printStackTrace(); //not needed anymore probably
+	         }
+	 
+		} else { 
+			//it does exist?
+		}
+		//start setting values
+		Configuration configYAML = getThisPlugin().getConfiguration();
+		configYAML.load();
+		capTypeID = configYAML.getInt("nuclearValues.capTypeID", 0);
+		payloadTypeID = configYAML.getInt("nuclearValues.payloadTypeID", 0);
+		
+		if(capTypeID == 0 && payloadTypeID == 0) {
+			log_It("severe", "both cap and payload returned 0");
+			log_It("severe", "Setting values to stupid numbers to preserve stability");
+			capTypeID = 9001; //if we leave payload and cap at 0, any air touched by redstone becomes a valid bomb design. 
+			payloadTypeID = 1337; //the world would not survive
+		}
+		
     }
     
 	public void onDisable(){ 
