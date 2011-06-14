@@ -2,9 +2,14 @@ package sadmean.mc.nuclearDevice;
 
 import java.util.List;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.CreatureType;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public class nuclearBomb {
@@ -13,11 +18,14 @@ public class nuclearBomb {
 	Location centerDiamondBlockLocation;
 	Location bottomGoldBlockLocation;
 	Location topGoldBlockLocation;
+	List<Entity> ents;
+	Entity ent;
 	int totalDiamondBlocks = 1;
 	int yield;
 	boolean lowerCap = false;
 	boolean upperCap = false;
 	public Player player;
+	
 	
 	//constrctor
 	public nuclearBomb(Location centerDiamondBlock_build) {
@@ -90,28 +98,36 @@ public class nuclearBomb {
 	public void explode(int time) {
 		World explodeWorld = centerDiamondBlockLocation.getWorld();
 		nuclearDevice.log_It("finest", "attempted exploson command");
-
+		//Chunk epicenter;
 		nuclearDevice.log_It("fine", "world name is " + explodeWorld.getName());
-		//String checkWorld = explodeWorld.getName();
+
 		if (lowerCap && upperCap) {
-		//if (checkWorld == "herpina") {
-			explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
-			explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
-			explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
-			explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
-			explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
-			explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
-			//explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
-			//explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
-			//explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
+
 			nuclearDevice.log_It("info", "Bomb armed on " + explodeWorld.getName() + ". DUN DUN DUN.");
+			explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
+
+			//This is where shit gets weird. We have to create an entity at the epicenter and then use that to collect ALL entites nearby
+			//Then we check to see what these entites are. IF they are items. WE DESTROY THEM!
+			LivingEntity checkCreeper = explodeWorld.spawnCreature(centerDiamondBlockLocation, CreatureType.CREEPER);
+			ents = checkCreeper.getNearbyEntities(yield, yield, yield);
+			
+			int entNumber = 0;
+			while (entNumber < ents.size()) {
+				ent = ents.get(entNumber);
+				if (ent instanceof org.bukkit.entity.Item){
+					ent.remove();
+				}
+				entNumber++;
+			}
+			//epicenter = explodeWorld.getChunkAt(centerDiamondBlockLocation);
+
 			//warn all players
 				int Xmessage = centerDiamondBlockLocation.getBlockX();
 				int Zmessage = centerDiamondBlockLocation.getBlockZ();
 				int playerNumber = 0;
 				List<Player> players = explodeWorld.getPlayers();
 				while (playerNumber < players.size()) {
-					players.get(playerNumber);
+					player = players.get(playerNumber);
 					player.sendMessage("WARNING: NUKE DETECTED AT " + Integer.toString(Xmessage) + " BY " + Integer.toString(Zmessage));
 					playerNumber++;
 				}
