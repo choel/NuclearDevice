@@ -2,12 +2,11 @@ package sadmean.mc.nuclearDevice;
 
 import java.util.List;
 
-import org.bukkit.Chunk;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.CreatureType;
-import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -15,77 +14,75 @@ import org.bukkit.entity.Player;
 public class nuclearBomb {
 
 	//parts
-	Location centerDiamondBlockLocation;
-	Location bottomGoldBlockLocation;
-	Location topGoldBlockLocation;
-	List<Entity> ents;
-	Entity ent;
-	int totalDiamondBlocks = 1;
-	int yield;
-	boolean lowerCap = false;
-	boolean upperCap = false;
-	public Player player;
+	Location eventLocation; //this is the location we are given by the constructor. It should be a diamond block next to a lever
+	Location centerDiamondBlockLocation; // This is where the epicenter of our explosion should be. We will get that location after we know where the gold caps are
+	Location bottomGoldBlockLocation; //the bottom gold cap
+	Location topGoldBlockLocation; //the top gold cap
+	List<Entity> ents; //the list of Entitys found in range of our explosion
+	Entity ent; //value used to manipulate a single Entity in the list of entitys
+	int totalDiamondBlocks = 0; //our total diamond blocks. 
+	int yield; //explosive yield
+	boolean lowerCap = false; //does this have a lower cap?
+	boolean upperCap = false; //does this have an upper cap
+	public Player player; //value used to manipulate our list of players
 	
+	//these values mark what block types are cap/exploder
+	int capTypeID = 41; //gold by default (this value is what makes the caps)
+	int payloadTypeID = 57; //diamond (this value is what adds to yield)
 	
-	//constrctor
-	public nuclearBomb(Location centerDiamondBlock_build) {
+	//Constructor
+	public nuclearBomb(Location givenLocation) {
 		nuclearDevice.log_It("fine", "attempting constructor");
-		//bottomGoldBlockLocation = bottomGoldBlock_build;
-		//topGoldBlockLocation = topGoldBlock_build;
 		double currentY;
 		Block holderBlock;
-		centerDiamondBlockLocation = centerDiamondBlock_build;
-		holderBlock = centerDiamondBlockLocation.getBlock();
-		Location cursor = centerDiamondBlockLocation;
+		eventLocation = givenLocation;
+		holderBlock = eventLocation.getBlock();
 		
-		if(holderBlock.getTypeId() == 57) {
-
-		//look for diamond above our switch
-
-
+		if(holderBlock.getTypeId() == payloadTypeID) {
+			//look for diamond at our eventLocation
 		
-		currentY = cursor.getY();
-		Location newLocation = new Location(cursor.getWorld(), cursor.getX(), currentY, cursor.getZ());		
-		holderBlock = newLocation.getBlock();
-
-		
-		currentY = cursor.getY();
-		//check blocks below our switch
-		nuclearDevice.log_It("fine", "checked FIRST BLOCK type is " + Integer.toString(holderBlock.getTypeId()));
-		while(holderBlock.getTypeId() == 57) {
-
-			currentY = currentY - 1;
-			newLocation = new Location(cursor.getWorld(), cursor.getX(), currentY, cursor.getZ());		
+			currentY = eventLocation.getY();
+			Location newLocation = new Location(eventLocation.getWorld(), eventLocation.getX(), currentY, eventLocation.getZ());		
 			holderBlock = newLocation.getBlock();
-			totalDiamondBlocks++;			
-		}
-		
-		//make sure we have gold caps, nigger!
-		if(holderBlock.getTypeId() == 41) lowerCap = true;
-		nuclearDevice.log_It("fine", "checked lowerCap type is " + Integer.toString(holderBlock.getTypeId()) + " but our bool is " + Boolean.toString(lowerCap));
-		
-		
-		currentY = cursor.getY();
-		newLocation = new Location(cursor.getWorld(), cursor.getX(), currentY, cursor.getZ());		
-		holderBlock = newLocation.getBlock();
-		nuclearDevice.log_It("fine", "reset checker");
-		nuclearDevice.log_It("fine", "reset blockholder type is " + Integer.toString(holderBlock.getTypeId()));
-		//check blocks above our switch
-		while(holderBlock.getTypeId() == 57) {
+			totalDiamondBlocks++;
+			nuclearDevice.log_It("fine", "checked FIRST BLOCK type is " + Integer.toString(holderBlock.getTypeId()));
+			
+			//we found our payload, lets check to see how many we have below eventLocation
+			while(holderBlock.getTypeId() == payloadTypeID) {
 
-			currentY = currentY + 1;
-			newLocation = new Location(cursor.getWorld(), cursor.getX(), currentY, cursor.getZ());		
+				currentY = currentY - 1;
+				newLocation = new Location(eventLocation.getWorld(), eventLocation.getX(), currentY, eventLocation.getZ());		
+				holderBlock = newLocation.getBlock();
+				totalDiamondBlocks++;			
+			}
+		
+			//make sure we have gold caps, nigger!
+			if(holderBlock.getTypeId() == capTypeID) lowerCap = true; //we're out of that while loop. lets see if that was a cap
+			
+			nuclearDevice.log_It("fine", "checked lowerCap type is " + Integer.toString(holderBlock.getTypeId()) + " but our bool is " + Boolean.toString(lowerCap));
+		
+		
+			currentY = eventLocation.getY();
+			newLocation = new Location(eventLocation.getWorld(), eventLocation.getX(), currentY, eventLocation.getZ());		
 			holderBlock = newLocation.getBlock();
-			totalDiamondBlocks++;			
-		}
-		if(holderBlock.getTypeId() == 41) upperCap = true;
+			nuclearDevice.log_It("fine", "reset checker");
+			nuclearDevice.log_It("fine", "reset blockholder type is " + Integer.toString(holderBlock.getTypeId()));
+			//check blocks above our switch
+			while(holderBlock.getTypeId() == payloadTypeID) {
+
+				currentY = currentY + 1;
+				newLocation = new Location(eventLocation.getWorld(), eventLocation.getX(), currentY, eventLocation.getZ());		
+				holderBlock = newLocation.getBlock();
+				totalDiamondBlocks++;			
+			}
+		if(holderBlock.getTypeId() == capTypeID) upperCap = true;
 		nuclearDevice.log_It("fine", "checked upperCap type is " + Integer.toString(holderBlock.getTypeId()) + " but our bool is " + Boolean.toString(lowerCap));
 		
 		//at this point, we have our total diamond blocks and gold caps. 
 		//lets get the explosive yield
 		
 		yield = totalDiamondBlocks * 9;
-		yield = totalDiamondBlocks + yield;
+		yield = totalDiamondBlocks + yield; //add total diamond blocks back into the yield, so each block is worth more then the last
 		
 		} else {
 			
@@ -106,14 +103,14 @@ public class nuclearBomb {
 			explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
 
 			//This is where shit gets weird. We have to create an entity at the epicenter and then use that to collect ALL entites nearby
-			//Then we check to see what these entites are. IF they are items. WE DESTROY THEM!
+			//Then we check to see what these entites are. IF they are items. WE remove() THEM!
 			LivingEntity checkCreeper = explodeWorld.spawnCreature(centerDiamondBlockLocation, CreatureType.CREEPER);
 			ents = checkCreeper.getNearbyEntities(yield, yield, yield);
 			
 			int entNumber = 0;
 			while (entNumber < ents.size()) {
 				ent = ents.get(entNumber);
-				if (ent instanceof org.bukkit.entity.Item){
+				if (ent instanceof org.bukkit.entity.Item) {
 					ent.remove();
 				}
 				entNumber++;
