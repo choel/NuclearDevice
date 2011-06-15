@@ -97,7 +97,7 @@ public class nuclearBomb {
 	}
 	
 	public void explode(int time) {
-		World explodeWorld = centerDiamondBlockLocation.getWorld();
+		World explodeWorld = eventLocation.getWorld();
 		nuclearDevice.log_It("finest", "attempting exploson command");
 		nuclearDevice.log_It("fine", "world name is " + explodeWorld.getName());
 
@@ -143,7 +143,7 @@ public class nuclearBomb {
 					player.sendMessage("WARNING: NUKE DETECTED AT " + Integer.toString(Xmessage) + " BY " + Integer.toString(Zmessage));
 					playerNumber++;
 				}
-				players.get(playerNumber);
+			
 				
 			nuclearDevice.log_It("info", "yield is " + Integer.toString(yield));
 		}
