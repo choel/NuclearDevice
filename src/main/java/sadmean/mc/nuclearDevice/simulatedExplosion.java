@@ -36,22 +36,22 @@ public class simulatedExplosion {
 
 	//the constructors
 	public simulatedExplosion(Location givenEpicenter, double givenYield) {
-	//epicenter is the center point of the explosion
-	//yield is the total value of the explosion.
-	//as provided by a function that would give the same value for a simillar sized explosion for a world.createExplosion()
-	//this means that 3 would yield a same-size explosion as a creeper, and 4 for TnT
+		//epicenter is the center point of the explosion
+		//yield is the total value of the explosion.
+		//as provided by a function that would give the same value for a simillar sized explosion for a world.createExplosion()
+		//this means that 3 would yield a same-size explosion as a creeper, and 4 for TnT
 
-	epicenter = givenEpicenter;
-	yield = convertToSimulatedYield(givenYield);
+		epicenter = givenEpicenter;
+		yield = convertToSimulatedYield(givenYield);
 
 	}
 
 	public simulatedExplosion(Location givenEpicenter, double givenYield, boolean kick) {
-	//same contructor as above, but takes a boolean to kick or not kick players
+		//same contructor as above, but takes a boolean to kick or not kick players
 
-	kickPlayers = kick;
-	epicenter = givenEpicenter;
-	yield = convertToSimulatedYield(givenYield);
+		kickPlayers = kick;
+		epicenter = givenEpicenter;
+		yield = convertToSimulatedYield(givenYield);
 
 	}
 
@@ -60,27 +60,27 @@ public class simulatedExplosion {
 
 
 	public boolean explode() {
-	//this is where we do everything
-	//returns false if something went wrong
-	double epicenterX = epicenter.getX();
-	double epicenterY = epicenter.getY();
-	double epicenterZ = epicenter.getZ();
+		//this is where we do everything
+		//returns false if something went wrong
+		double epicenterX = epicenter.getX();
+		double epicenterY = epicenter.getY();
+		double epicenterZ = epicenter.getZ();
 
 
-	return false;
+		return false;
 	}
 
 
 	private double convertToSimulatedYield(double givenYield) {
-	//the given yield is probably going to be too low of a number for us to work with.
-	//so this function will, at some point, convert it to our standard value
-	double convertedYield;
-	convertedYield = givenYield;
+		//the given yield is probably going to be too low of a number for us to work with.
+		//so this function will, at some point, convert it to our standard value
+		double convertedYield;
+		convertedYield = givenYield;
 
-	return convertedYield;
-
-	}
-
-
+		return convertedYield;
 
 	}
+
+
+
+}
