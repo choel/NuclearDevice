@@ -3,6 +3,9 @@ package sadmean.mc.nuclearDevice;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
+
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -88,9 +91,21 @@ public class nuclearDevice extends JavaPlugin {
 	public void onDisable(){ 
 		log_It("info", "Disabled Completed"); //log us not doing anything. 
 	}
-	
+	//command handler
+	 public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
+		 if(cmd.getName().equalsIgnoreCase("nuclearDevice")){ // If the player typed /nuclearDevice then do the following...
+			 nukeCommander commander = new nukeCommander(sender, cmd, args); //creates a nukeCommander to deal with our commands
+			 commander.commandHelper(); //tell the commander helper to do its thing
+			 return true;
+		 } //If this has happened the function will break and return true. if this hasn't happened the a value of false will be returned.
+		 return false; 
+	 }
+
+
 	//logging functions
 	
+
+
 	public static void log_It(String message) {
 		//converts 1 string log_it to a 2 string log it. Fixes leftovers.
 		String level = "undefined";

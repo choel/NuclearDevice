@@ -1,3 +1,8 @@
 name: nuclearDevice
 main: sadmean.mc.nuclearDevice.nuclearDevice
-version: 0.6.3
+version: 0.6.3.1
+
+commands:
+  nuclearDevice:
+    description: Inferfaces with nuclearDevice
+    usage: /nuclearDevice [args]
