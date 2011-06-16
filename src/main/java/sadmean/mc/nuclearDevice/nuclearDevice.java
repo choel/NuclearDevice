@@ -45,6 +45,7 @@ public class nuclearDevice extends JavaPlugin {
     public static int payloadTypeID = 57;
     public static boolean useSimulatedExplosion = false;
     //default cap/payload. overwritten by yaml
+	
     
     public void onEnable(){  //onEnable is called after onLoad
 		PluginManager pm = this.getServer().getPluginManager(); //register this plugin
@@ -55,12 +56,11 @@ public class nuclearDevice extends JavaPlugin {
 		new File(mainDirectory).mkdir();  //makes our directory if needed
 		if(!configFile.exists()){ //if your config does not exist then ...
 	         try { 
-	             configFile.createNewFile(); //... we create it then ...
-
-	     		Configuration configYAML = getThisPlugin().getConfiguration(); //... load the blank new file ...
-	     		configYAML.setProperty("nuclearValues.capTypeID", capTypeID); //..set defaultAir
-	     		configYAML.setProperty("nuclearValues.payloadTypeID", payloadTypeID); //... then set some values`
-	     		configYAML.setProperty("nuclearValues.useSimulatedExplosion", useSimulatedExplosion); //... then set some values`
+	        	 configFile.createNewFile(); //... we create it then ...
+	        	 Configuration configYAML = getThisPlugin().getConfiguration(); //... load the blank new file ...
+	        	 configYAML.setProperty("nuclearValues.capTypeID", capTypeID); //..set values.
+	        	 configYAML.setProperty("nuclearValues.payloadTypeID", payloadTypeID); //... then set some values`
+	        	 configYAML.setProperty("nuclearValues.useSimulatedExplosion", useSimulatedExplosion); //... then set some values`
 
 	     		if(!configYAML.save()) { //attempt to save, if fails then
 	     			log_It("severe", "Attempted to save config.yml, got saving error!"); //IT FAILED!
@@ -101,11 +101,60 @@ public class nuclearDevice extends JavaPlugin {
 		 return false; 
 	 }
 
+	 //helpers
+	 public static boolean setCap(int setCapID) {
+		 capTypeID = setCapID;
+		 if (updateYAML("nuclearValues.capTypeID", setCapID)) {
+			 return true;
+		 } else {
+			 return false;
+		 }
+		 
+		 
+	 }
+	 
+	 public static boolean setPayload(int setPayloadID) {
+		 payloadTypeID = setPayloadID;
+		 if (updateYAML("nuclearValues.payloadTypeID", setPayloadID)) {
+			 return true;
+		 } else {
+			 return false;
+		 }
+		 
+		 
+	 }
+	 
+	 public static boolean setUSE(boolean USE) {
+		 if (updateYAML("nuclearValues.useSimulatedExplosion", true)) {
+			 return true;
+		 } else {
+			 return false;
+		 }
+	 }
+	 
+	 static boolean updateYAML(String path, int value) {
+		 Configuration configYAML = getThisPlugin().getConfiguration();
+		 configYAML.setProperty(path, value);
+		 if (configYAML.save()) {
+			 return true;
+		 }
+		 else {
+			 return false;
+		 }
+	 }
+	 
+	 static boolean updateYAML(String path, boolean value) {
+		 Configuration configYAML = getThisPlugin().getConfiguration();
+		 configYAML.setProperty(path, value);
+		 if (configYAML.save()) {
+			 return true;
+		 }
+		 else {
+			 return false;
+		 }
+	 }
 
 	//logging functions
-	
-
-
 	public static void log_It(String message) {
 		//converts 1 string log_it to a 2 string log it. Fixes leftovers.
 		String level = "undefined";
