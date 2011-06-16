@@ -1,6 +1,8 @@
 package sadmean.mc.nuclearDevice;
 
 import java.util.List;
+
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -140,7 +142,7 @@ public class nuclearBomb {
 				List<Player> players = explodeWorld.getPlayers();
 				while (playerNumber < players.size()) {
 					player = players.get(playerNumber);
-					player.sendMessage("WARNING: NUKE DETECTED AT " + Integer.toString(Xmessage) + " BY " + Integer.toString(Zmessage));
+					player.sendMessage(ChatColor.BLUE + "[ND] " + ChatColor.RED + "WARNING: NUKE DETECTED AT " + Integer.toString(Xmessage) + " BY " + Integer.toString(Zmessage));
 					playerNumber++;
 				}
 			

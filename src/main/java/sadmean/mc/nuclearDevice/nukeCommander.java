@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
+
 public class nukeCommander {
 			
 	//Parts
@@ -21,6 +22,8 @@ public class nukeCommander {
 			}
 			
 			public void commandHelper() {
+					
+					senderPlayer.isOp();
 				if (!arguements[0].equalsIgnoreCase("setUSE") && !arguements[0].equalsIgnoreCase("setPayload") && !arguements[0].equalsIgnoreCase("setCap")) {
 					senderPlayer.sendMessage(chatStarter + "Improper arguement. Valid arguments:");
 					senderPlayer.sendMessage(ChatColor.GRAY + "/nuclearDevice [setUSE, setPayload, setCap] [values]");

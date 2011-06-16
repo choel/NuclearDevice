@@ -4,20 +4,28 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 
+import com.nijiko.permissions.PermissionHandler;
+import com.nijikokun.bukkit.Permissions.Permissions;
 
 public class nuclearDevice extends JavaPlugin {
 	
 	//needed files
 	static String mainDirectory = "plugins/nuclearDevice";
 	static public File configFile = new File(mainDirectory + File.separator + "config.yml");
+	
+	//permissions
+	public static PermissionHandler permissionHandler;
 	
 	//setup and stuff
     private static nuclearDevice thisPlugin = null; //I don't know what this does. Necessary for fancy log
@@ -53,6 +61,7 @@ public class nuclearDevice extends JavaPlugin {
 		pm.registerEvent(Event.Type.ITEM_SPAWN, entityListener, Event.Priority.Normal, this); //register our playerListener
 		//pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Normal, this); //register our serverListener (not needed)?
 		log_It("info", "Enabled started");
+		setupPermissions(); //enabled permissions
 		new File(mainDirectory).mkdir();  //makes our directory if needed
 		if(!configFile.exists()){ //if your config does not exist then ...
 	         try { 
@@ -93,10 +102,18 @@ public class nuclearDevice extends JavaPlugin {
 	}
 	//command handler
 	 public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
+		 //set a variable or 2
+		 Server server = sender.getServer();
+		 Player playerSender = server.getPlayer(sender.toString());
 		 if(cmd.getName().equalsIgnoreCase("nuclearDevice")){ // If the player typed /nuclearDevice then do the following...
-			 nukeCommander commander = new nukeCommander(sender, cmd, args); //creates a nukeCommander to deal with our commands
-			 commander.commandHelper(); //tell the commander helper to do its thing
-			 return true;
+			  if (getThisPlugin().permissionHandler.has(playerSender, "nuclearDevice.configure")) {  
+			      nukeCommander commander = new nukeCommander(sender, cmd, args); //creates a nukeCommander to deal with our commands
+			      commander.commandHelper(); //tell the commander helper to do its thing
+			      return true;	
+			  }
+			  else {
+				  return false; 
+			  }
 		 } //If this has happened the function will break and return true. if this hasn't happened the a value of false will be returned.
 		 return false; 
 	 }
@@ -142,6 +159,19 @@ public class nuclearDevice extends JavaPlugin {
 			 return false;
 		 }
 	 }
+	 
+	  private void setupPermissions() {
+	      Plugin permissionsPlugin = this.getServer().getPluginManager().getPlugin("Permissions");
+
+	      if (this.permissionHandler == null) {
+	          if (permissionsPlugin != null) {
+	              this.permissionHandler = ((Permissions) permissionsPlugin).getHandler();
+	          } else {
+	              log.info("Permission system not detected, defaulting to OP");
+	          }
+	      }
+	  }
+
 	 
 	 static boolean updateYAML(String path, boolean value) {
 		 Configuration configYAML = getThisPlugin().getConfiguration();
