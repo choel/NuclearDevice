@@ -1,5 +1,6 @@
 package sadmean.mc.nuclearDevice;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Location;
@@ -31,8 +32,9 @@ public class simulatedExplosion {
 	double yield;
 	List<Block> explodeBlocks;
 	boolean kickPlayers = true; //should we force players caught in the explosion to reconnect?
-
-
+	boolean igniteOuterLayer = false; //should we replace air with fire on the final layer?
+	boolean destroyBedrock = false; 
+	Block theSource;
 
 	//the constructors
 	public simulatedExplosion(Location givenEpicenter, double givenYield) {
@@ -42,7 +44,7 @@ public class simulatedExplosion {
 		//this means that 3 would yield a same-size explosion as a creeper, and 4 for TnT
 
 		epicenter = givenEpicenter;
-		yield = convertToSimulatedYield(givenYield);
+		yield = givenYield;
 
 	}
 
@@ -51,35 +53,85 @@ public class simulatedExplosion {
 
 		kickPlayers = kick;
 		epicenter = givenEpicenter;
-		yield = convertToSimulatedYield(givenYield);
+		yield = givenYield;
 
 	}
 
+	public simulatedExplosion(Location givenEpicenter, double givenYield, boolean kick, boolean ignite) {
+		//same contructor as above, but takes a boolean to ignite the shit outa things
 
+		kickPlayers = kick;
+		epicenter = givenEpicenter;
+		yield = givenYield;
+		igniteOuterLayer = ignite;
 
+	}
+	
+	public simulatedExplosion(Location givenEpicenter, double givenYield, boolean kick, boolean ignite, boolean bedrock) {
+		//same contructor as above, but takes a boolean to destory bedrock
 
+		kickPlayers = kick;
+		epicenter = givenEpicenter;
+		yield = givenYield;
+		igniteOuterLayer = ignite;
+		destroyBedrock = bedrock;
 
+	}
+	
 	public boolean explode() {
-		//this is where we do everything
-		//returns false if something went wrong
-		double epicenterX = epicenter.getX();
-		double epicenterY = epicenter.getY();
-		double epicenterZ = epicenter.getZ();
+		theSource = epicenter.getBlock();
+	
+		
+		ArrayList<Block> growInBlocks = new ArrayList<Block>(27);
+		int range = (int) yield;
+			for (int dx = -(range); dx <= range; dx++){
+				for (int dy = -(range); dy <= range; dy++){
+					for (int dz = -(range); dz <= range; dz++){
+						growInBlocks.add(theSource.getRelative(dx, dy, dz));
+					}
+				}
+			}
+		//Thanks Afforess!!
+			
+			
+		int i = 0;
+		while (i < growInBlocks.size()) {
+			theSource = growInBlocks.get(i);
+			if (destroyBedrock && theSource.getTypeId() != 7) theSource.setTypeId(0);
+			i++;
+		}
+		return true;
+		
+	}
+	
+	public boolean explodeLowMemoryMethod() {
+		theSource = epicenter.getBlock();
+		Block holderBlock;
+		
+		int range = (int) yield;
+			for (int dx = -(range); dx <= range; dx++){
+				for (int dy = -(range); dy <= range; dy++){
+					for (int dz = -(range); dz <= range; dz++){
+						if ((dx + dy + dz) < range) {
+							holderBlock = theSource.getRelative(dx, dy, dz);
+							if (destroyBedrock && holderBlock.getTypeId() != 7) holderBlock.setTypeId(0);
+						} else {
+							if ((dx + dy + dz) == range) {
+								holderBlock = theSource.getRelative(dx, dy + 1, dz);
+								if (igniteOuterLayer && holderBlock.getTypeId() == 0) holderBlock.setTypeId(51);
+							}
+						}
+					}
+				}
+			}
+			
+			
+		//Thanks Afforess!!
 
-
-		return false;
+		return true;
+		
 	}
 
-
-	private double convertToSimulatedYield(double givenYield) {
-		//the given yield is probably going to be too low of a number for us to work with.
-		//so this function will, at some point, convert it to our standard value
-		double convertedYield;
-		convertedYield = givenYield;
-
-		return convertedYield;
-
-	}
 
 
 

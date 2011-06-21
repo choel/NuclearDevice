@@ -1,7 +1,5 @@
 package sadmean.mc.nuclearDevice;
 
-import java.util.logging.Logger;
-
 import org.bukkit.Location;
 import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.entity.ItemSpawnEvent;

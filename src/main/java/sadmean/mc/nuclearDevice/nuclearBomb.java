@@ -81,8 +81,8 @@ public class nuclearBomb {
 		//at this point, we have our total diamond blocks and gold caps. 
 		//lets get the explosive yield
 		
-		yield = totalDiamondBlocks * 9;
-		yield = totalDiamondBlocks + yield; //add total diamond blocks back into the yield, so each block is worth more then the last
+		yield = totalDiamondBlocks * 4;
+		yield = totalDiamondBlocks + (yield / 2); //add total diamond blocks back into the yield, so each block is worth more then the last
 		
 		//get our center diamondblock by using our top and bottom gold blocks
 		
@@ -107,7 +107,7 @@ public class nuclearBomb {
 			
 			if (nuclearDevice.useSimulatedExplosion) {
 				simulatedExplosion explosion = new simulatedExplosion(centerDiamondBlockLocation, yield);
-				if(explosion.explode()) {
+				if(explosion.explodeLowMemoryMethod()) {
 					nuclearDevice.log_It("info", "Bomb armed on " + explodeWorld.getName() + ". DUN DUN DUN.");
 				} else {
 					nuclearDevice.log_It("warning", "simulated explosion failed");
@@ -117,37 +117,43 @@ public class nuclearBomb {
 			
 				nuclearDevice.log_It("info", "Bomb armed on " + explodeWorld.getName() + ". DUN DUN DUN.");
 				explodeWorld.createExplosion(centerDiamondBlockLocation, yield);
-
-				//This is where shit gets weird. We have to create an entity at the epicenter and then use that to collect ALL entites nearby
-				//Then we check to see what these entites are. IF they are items. WE remove() THEM!
-				LivingEntity checkCreeper = explodeWorld.spawnCreature(centerDiamondBlockLocation, CreatureType.CREEPER);
-				ents = checkCreeper.getNearbyEntities(yield, yield, yield);
-			
-				int entNumber = 0;
-				while (entNumber < ents.size()) {
-					ent = ents.get(entNumber);
-					if (ent instanceof org.bukkit.entity.Item) {
-						ent.remove();
-					}
-					entNumber++;
-				}
-
-				//and don't forget to remove the creeper!
-				checkCreeper.remove();
+				explodeWorld.createExplosion(topGoldBlockLocation, yield);
+				explodeWorld.createExplosion(bottomGoldBlockLocation, yield);
 			}
-			//warn all players
-				int Xmessage = eventLocation.getBlockX();
-				int Zmessage = eventLocation.getBlockZ();
-				int playerNumber = 0;
-				List<Player> players = explodeWorld.getPlayers();
-				while (playerNumber < players.size()) {
-					player = players.get(playerNumber);
-					player.sendMessage(ChatColor.BLUE + "[ND] " + ChatColor.RED + "WARNING: NUKE DETECTED AT " + Integer.toString(Xmessage) + " BY " + Integer.toString(Zmessage));
-					playerNumber++;
+			//This is where shit gets weird. We have to create an entity at the epicenter and then use that to collect ALL entites nearby
+			//Then we check to see what these entites are. IF they are items. WE remove() THEM!
+			LivingEntity checkCreeper = explodeWorld.spawnCreature(centerDiamondBlockLocation, CreatureType.CREEPER);
+			ents = checkCreeper.getNearbyEntities(yield, yield, yield);
+			
+			int entNumber = 0;
+			while (entNumber < ents.size()) {
+				ent = ents.get(entNumber);
+				if (ent instanceof org.bukkit.entity.Item) {
+					ent.remove();
 				}
+				if (ent instanceof org.bukkit.entity.Player && nuclearDevice.kickPlayers) {
+					((Player) ent).kickPlayer("Radation damage");
+				}
+				
+				entNumber++;
+			}
+
+			//and don't forget to remove the creeper!
+			checkCreeper.remove();
+			
+			//warn all players
+			int Xmessage = eventLocation.getBlockX();
+			int Zmessage = eventLocation.getBlockZ();
+			int playerNumber = 0;
+			List<Player> players = explodeWorld.getPlayers();
+			while (playerNumber < players.size()) {
+				player = players.get(playerNumber);
+				player.sendMessage(ChatColor.BLUE + "[ND] " + ChatColor.RED + "WARNING: NUKE DETECTED AT " + Integer.toString(Xmessage) + " BY " + Integer.toString(Zmessage));
+				playerNumber++;
+			}
 			
 				
-			nuclearDevice.log_It("info", "yield is " + Integer.toString(yield));
+			nuclearDevice.log_It("info", "Nuke detected: Yield is " + Integer.toString(yield));
 		}
 		
 		

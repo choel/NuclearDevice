@@ -21,10 +21,10 @@ public class nukeCommander {
 				
 			}
 			
-			public void commandHelper() {
+			public boolean commandHelper() {
 					
-					senderPlayer.isOp();
-				if (!arguements[0].equalsIgnoreCase("setUSE") && !arguements[0].equalsIgnoreCase("setPayload") && !arguements[0].equalsIgnoreCase("setCap")) {
+				if (arguements.length <= 1) return false;
+				if (!arguements[0].equalsIgnoreCase("setKick") && !arguements[0].equalsIgnoreCase("setBedrock") && !arguements[0].equalsIgnoreCase("setIgnite") && !arguements[0].equalsIgnoreCase("setUSE") && !arguements[0].equalsIgnoreCase("setPayload") && !arguements[0].equalsIgnoreCase("setCap")) {
 					senderPlayer.sendMessage(chatStarter + "Improper arguement. Valid arguments:");
 					senderPlayer.sendMessage(ChatColor.GRAY + "/nuclearDevice [setUSE, setPayload, setCap] [values]");
 				} else {
@@ -70,8 +70,50 @@ public class nukeCommander {
 						}
 					}
 					
+					if (arguements[0].equalsIgnoreCase("setBedrock")) {
+						if(arguements[1].equalsIgnoreCase("false")) {
+							nuclearDevice.setDestroyBedrock(false);
+							senderPlayer.sendMessage(chatStarter + "set DestroyBedrock to false");
+						} else {
+							if(arguements[1].equalsIgnoreCase("true")) {
+								nuclearDevice.setDestroyBedrock(true);
+								senderPlayer.sendMessage(chatStarter + "set DestroyBedrock to true");
+							} else {
+								senderPlayer.sendMessage(chatStarter + "Improper arguement error");
+							}
+						}
+					}
+					
+					if (arguements[0].equalsIgnoreCase("setIgnite")) {
+						if(arguements[1].equalsIgnoreCase("false")) {
+							nuclearDevice.setIgniteOuterLayer(false);
+							senderPlayer.sendMessage(chatStarter + "set IgniteOuterLayer to false");
+						} else {
+							if(arguements[1].equalsIgnoreCase("true")) {
+								nuclearDevice.setIgniteOuterLayer(true);
+								senderPlayer.sendMessage(chatStarter + "set IgniteOuterLayer to true");
+							} else {
+								senderPlayer.sendMessage(chatStarter + "Improper arguement error");
+							}
+						}
+					}
+					
+					if (arguements[0].equalsIgnoreCase("setKick")) {
+						if(arguements[1].equalsIgnoreCase("false")) {
+							nuclearDevice.setKickPlayers(false);
+							senderPlayer.sendMessage(chatStarter + "set KickPlayers to false");
+						} else {
+							if(arguements[1].equalsIgnoreCase("true")) {
+								nuclearDevice.setKickPlayers(true);
+								senderPlayer.sendMessage(chatStarter + "set KickPlayers to true");
+							} else {
+								senderPlayer.sendMessage(chatStarter + "Improper arguement error");
+							}
+						}
+					}
+					
 				}
-				
+			return true;	
 			}
 			
 }

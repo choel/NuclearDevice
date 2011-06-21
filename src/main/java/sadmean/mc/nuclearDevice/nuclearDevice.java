@@ -52,6 +52,9 @@ public class nuclearDevice extends JavaPlugin {
     public static int capTypeID = 41;
     public static int payloadTypeID = 57;
     public static boolean useSimulatedExplosion = false;
+    public static boolean destroyBedrock = false;
+    public static boolean igniteOuterLayer = false;
+    public static boolean kickPlayers = false;
     //default cap/payload. overwritten by yaml
 	
     
@@ -70,7 +73,10 @@ public class nuclearDevice extends JavaPlugin {
 	        	 configYAML.setProperty("nuclearValues.capTypeID", capTypeID); //..set values.
 	        	 configYAML.setProperty("nuclearValues.payloadTypeID", payloadTypeID); //... then set some values`
 	        	 configYAML.setProperty("nuclearValues.useSimulatedExplosion", useSimulatedExplosion); //... then set some values`
-
+	        	 configYAML.setProperty("nuclearValues.DestroyBedrock", destroyBedrock); //... then set some values`
+	        	 configYAML.setProperty("nuclearValues.igniteOuterLayer", igniteOuterLayer); //... then set some values
+	        	 configYAML.setProperty("nuclearValues.kickPlayers", kickPlayers); //... then set some values
+	        	 
 	     		if(!configYAML.save()) { //attempt to save, if fails then
 	     			log_It("severe", "Attempted to save config.yml, got saving error!"); //IT FAILED!
 	     		}
@@ -87,6 +93,9 @@ public class nuclearDevice extends JavaPlugin {
 		capTypeID = configYAML.getInt("nuclearValues.capTypeID", 0);
 		payloadTypeID = configYAML.getInt("nuclearValues.payloadTypeID", 0);
 		useSimulatedExplosion = configYAML.getBoolean("nuclearValues.useSimulatedExplosion", false);
+		igniteOuterLayer = configYAML.getBoolean("nuclearValues.destroyBedrock", false);
+		destroyBedrock = configYAML.getBoolean("nuclearValues.igniteOuterLayer", false);
+		kickPlayers = configYAML.getBoolean("nuclearValues.kickPlayers", false);
 		
 		if(capTypeID == 0 && payloadTypeID == 0) {
 			log_It("severe", "both cap and payload returned 0");
@@ -106,15 +115,15 @@ public class nuclearDevice extends JavaPlugin {
 		 Server server = sender.getServer();
 		 Player playerSender = server.getPlayer(sender.toString());
 		 if(cmd.getName().equalsIgnoreCase("nuclearDevice")){ // If the player typed /nuclearDevice then do the following...
-			  if (getThisPlugin().permissionHandler.has(playerSender, "nuclearDevice.configure")) {  
+			  //if (getThisPlugin().permissionHandler.has(playerSender, "nuclearDevice.configure")) {  
 			      nukeCommander commander = new nukeCommander(sender, cmd, args); //creates a nukeCommander to deal with our commands
-			      commander.commandHelper(); //tell the commander helper to do its thing
+			      if(!commander.commandHelper()) return false; //tell the commander helper to do its thing
 			      return true;	
+			 // }
+			 // else {
+			//	  return false; 
 			  }
-			  else {
-				  return false; 
-			  }
-		 } //If this has happened the function will break and return true. if this hasn't happened the a value of false will be returned.
+		// } //If this has happened the function will break and return true. if this hasn't happened the a value of false will be returned.
 		 return false; 
 	 }
 
@@ -149,6 +158,30 @@ public class nuclearDevice extends JavaPlugin {
 		 }
 	 }
 	 
+	 public static boolean setDestroyBedrock(boolean USE) {
+		 if (updateYAML("nuclearValues.destroyBedrock", true)) {
+			 return true;
+		 } else {
+			 return false;
+		 }
+	 }
+	 
+	 public static boolean setKickPlayers(boolean USE) {
+		 if (updateYAML("nuclearValues.kickPlayers", true)) {
+			 return true;
+		 } else {
+			 return false;
+		 }
+	 }
+	 
+	 public static boolean setIgniteOuterLayer(boolean USE) {
+		 if (updateYAML("nuclearValues.igniteOuterLayer", true)) {
+			 return true;
+		 } else {
+			 return false;
+		 }
+	 }
+	 
 	 static boolean updateYAML(String path, int value) {
 		 Configuration configYAML = getThisPlugin().getConfiguration();
 		 configYAML.setProperty(path, value);
@@ -163,9 +196,9 @@ public class nuclearDevice extends JavaPlugin {
 	  private void setupPermissions() {
 	      Plugin permissionsPlugin = this.getServer().getPluginManager().getPlugin("Permissions");
 
-	      if (this.permissionHandler == null) {
+	      if (getThisPlugin().permissionHandler == null) {
 	          if (permissionsPlugin != null) {
-	              this.permissionHandler = ((Permissions) permissionsPlugin).getHandler();
+	              getThisPlugin().permissionHandler = ((Permissions) permissionsPlugin).getHandler();
 	          } else {
 	              log.info("Permission system not detected, defaulting to OP");
 	          }
