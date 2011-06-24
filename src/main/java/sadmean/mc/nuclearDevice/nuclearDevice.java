@@ -30,7 +30,7 @@ public class nuclearDevice extends JavaPlugin {
 	//setup and stuff
     private static nuclearDevice thisPlugin = null; //I don't know what this does. Necessary for fancy log
     private final nuclearBlockListener blockListener = new nuclearBlockListener(this); //the player listener.
-    private final nuclearEntityListener entityListener = new nuclearEntityListener(this); //the entity listener.
+
 	
 	public static Logger log = Logger.getLogger("Minecraft"); //logger object. can be written to directly with "log.info("herp derp")
     
@@ -55,14 +55,15 @@ public class nuclearDevice extends JavaPlugin {
     public static boolean destroyBedrock = false;
     public static boolean igniteOuterLayer = false;
     public static boolean kickPlayers = false;
+    public static boolean ignorePermissions = false;
+    public static boolean smoothExplosions = false;
+    public static boolean lowMemoryMethod = true;
     //default cap/payload. overwritten by yaml
 	
     
     public void onEnable(){  //onEnable is called after onLoad
 		PluginManager pm = this.getServer().getPluginManager(); //register this plugin
 		pm.registerEvent(Event.Type.REDSTONE_CHANGE, blockListener, Event.Priority.Normal, this); //register our playerListener
-		pm.registerEvent(Event.Type.ITEM_SPAWN, entityListener, Event.Priority.Normal, this); //register our playerListener
-		//pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Normal, this); //register our serverListener (not needed)?
 		log_It("info", "Enabled started");
 		setupPermissions(); //enabled permissions
 		new File(mainDirectory).mkdir();  //makes our directory if needed
@@ -70,13 +71,15 @@ public class nuclearDevice extends JavaPlugin {
 	         try { 
 	        	 configFile.createNewFile(); //... we create it then ...
 	        	 Configuration configYAML = getThisPlugin().getConfiguration(); //... load the blank new file ...
-	        	 configYAML.setProperty("nuclearValues.capTypeID", capTypeID); //..set values.
-	        	 configYAML.setProperty("nuclearValues.payloadTypeID", payloadTypeID); //... then set some values`
-	        	 configYAML.setProperty("nuclearValues.useSimulatedExplosion", useSimulatedExplosion); //... then set some values`
-	        	 configYAML.setProperty("nuclearValues.DestroyBedrock", destroyBedrock); //... then set some values`
-	        	 configYAML.setProperty("nuclearValues.igniteOuterLayer", igniteOuterLayer); //... then set some values
-	        	 configYAML.setProperty("nuclearValues.kickPlayers", kickPlayers); //... then set some values
-	        	 
+	        	 configYAML.setProperty("nuclearValues.capTypeID", capTypeID); //..set block type of bomb caps
+	        	 configYAML.setProperty("nuclearValues.payloadTypeID", payloadTypeID); //... then block type of bomb payload
+	        	 configYAML.setProperty("nuclearValues.ignorePermissions", ignorePermissions); //... ignore permissions mod, present or not
+	        	 configYAML.setProperty("nuclearValues.useSimulatedExplosion", useSimulatedExplosion); //... then turn simulatedExplosion on or off
+	        	 configYAML.setProperty("nuclearValues.DestroyBedrock", destroyBedrock); //... should simulated explosions destroy bedrock
+	        	 configYAML.setProperty("nuclearValues.igniteOuterLayer", igniteOuterLayer); //... should simulated explosions leave fire behind
+	        	 configYAML.setProperty("nuclearValues.kickPlayers", kickPlayers); //... should explosions (both sim and non sim) kick players caught inthem?
+	        	 configYAML.setProperty("nuclearValues.smoothExplosions", smoothExplosions); //... should simulated explosions be smooth?
+	        	 configYAML.setProperty("nuclearValues.lowMemoryMethod", lowMemoryMethod); //... use the low memory 'trick' for simulated explosons
 	     		if(!configYAML.save()) { //attempt to save, if fails then
 	     			log_It("severe", "Attempted to save config.yml, got saving error!"); //IT FAILED!
 	     		}
@@ -96,6 +99,9 @@ public class nuclearDevice extends JavaPlugin {
 		igniteOuterLayer = configYAML.getBoolean("nuclearValues.destroyBedrock", false);
 		destroyBedrock = configYAML.getBoolean("nuclearValues.igniteOuterLayer", false);
 		kickPlayers = configYAML.getBoolean("nuclearValues.kickPlayers", false);
+		lowMemoryMethod = configYAML.getBoolean("nuclearValues.lowMemoryMethod", true);
+		smoothExplosions = configYAML.getBoolean("nuclearValues.smoothExplosions", false);
+		ignorePermissions = configYAML.getBoolean("nuclearValues.ignorePermissions", false);
 		
 		if(capTypeID == 0 && payloadTypeID == 0) {
 			log_It("severe", "both cap and payload returned 0");
@@ -110,21 +116,22 @@ public class nuclearDevice extends JavaPlugin {
 		log_It("info", "Disabled Completed"); //log us not doing anything. 
 	}
 	//command handler
-	 public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
-		 //set a variable or 2
-		 Server server = sender.getServer();
-		 Player playerSender = server.getPlayer(sender.toString());
-		 if(cmd.getName().equalsIgnoreCase("nuclearDevice")){ // If the player typed /nuclearDevice then do the following...
-			  //if (getThisPlugin().permissionHandler.has(playerSender, "nuclearDevice.configure")) {  
-			      nukeCommander commander = new nukeCommander(sender, cmd, args); //creates a nukeCommander to deal with our commands
-			      if(!commander.commandHelper()) return false; //tell the commander helper to do its thing
-			      return true;	
-			 // }
-			 // else {
-			//	  return false; 
-			  }
-		// } //If this has happened the function will break and return true. if this hasn't happened the a value of false will be returned.
-		 return false; 
+	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
+		//set a variable or 2
+		Server server = sender.getServer();
+		Player playerSender = server.getPlayer(sender.toString());
+		log_It("info", sender.toString() + " just sent a command");
+		if(cmd.getName().equalsIgnoreCase("nuclearDevice")){ // If the player typed /nuclearDevice then do the following...
+			if (permissionHandler.has(playerSender, "nuclearDevice.configure")) {  
+				nukeCommander commander = new nukeCommander(sender, cmd, args); //creates a nukeCommander to deal with our commands
+			    if(!commander.commandHelper()) return false; //tell the commander helper to do its thing
+			    return true;	
+			}
+			else {
+				return false; 
+			}
+		} //If this has happened the function will break and return true. if this hasn't happened the a value of false will be returned.
+		return false; 
 	 }
 
 	 //helpers
@@ -196,9 +203,9 @@ public class nuclearDevice extends JavaPlugin {
 	  private void setupPermissions() {
 	      Plugin permissionsPlugin = this.getServer().getPluginManager().getPlugin("Permissions");
 
-	      if (getThisPlugin().permissionHandler == null) {
+	      if (this.permissionHandler == null) {
 	          if (permissionsPlugin != null) {
-	              getThisPlugin().permissionHandler = ((Permissions) permissionsPlugin).getHandler();
+	              this.permissionHandler = ((Permissions) permissionsPlugin).getHandler();
 	          } else {
 	              log.info("Permission system not detected, defaulting to OP");
 	          }

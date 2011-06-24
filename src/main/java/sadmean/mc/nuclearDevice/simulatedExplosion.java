@@ -112,11 +112,11 @@ public class simulatedExplosion {
 			for (int dx = -(range); dx <= range; dx++){
 				for (int dy = -(range); dy <= range; dy++){
 					for (int dz = -(range); dz <= range; dz++){
-						if ((dx + dy + dz) < range) {
+						if ((Math.abs(dx) + Math.abs(dy) + Math.abs(dz)) < range) {
 							holderBlock = theSource.getRelative(dx, dy, dz);
-							if (destroyBedrock && holderBlock.getTypeId() != 7) holderBlock.setTypeId(0);
+							if (destroyBedrock || holderBlock.getTypeId() != 7) holderBlock.setTypeId(0);
 						} else {
-							if ((dx + dy + dz) == range) {
+							if ((Math.abs(dx) + Math.abs(dy) + Math.abs(dz)) == range) {
 								holderBlock = theSource.getRelative(dx, dy + 1, dz);
 								if (igniteOuterLayer && holderBlock.getTypeId() == 0) holderBlock.setTypeId(51);
 							}
