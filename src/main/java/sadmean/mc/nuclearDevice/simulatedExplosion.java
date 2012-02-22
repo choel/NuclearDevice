@@ -112,7 +112,7 @@ public class simulatedExplosion {
 			for (int dx = -(range); dx <= range; dx++){
 				for (int dy = -(range); dy <= range; dy++){
 					for (int dz = -(range); dz <= range; dz++){
-						if ((Math.abs(dx) + Math.abs(dy) + Math.abs(dz)) < range) {
+						if (((Math.abs(dx) * Math.abs(dx)) + (Math.abs(dy) * Math.abs(dy)) + (Math.abs(dz) * Math.abs(dz))) < (range * range)) {
 							holderBlock = theSource.getRelative(dx, dy, dz);
 							if (destroyBedrock || holderBlock.getTypeId() != 7) holderBlock.setTypeId(0);
 						} else {

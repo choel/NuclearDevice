@@ -3,13 +3,15 @@ package sadmean.mc.nuclearDevice;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.event.block.BlockListener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
 
 
 
-public class nuclearBlockListener extends BlockListener {
+public class nuclearBlockListener implements Listener {
 
+	@EventHandler
 	public void onBlockRedstoneChange(BlockRedstoneEvent event) {
 		
 		//recieved redstone event
@@ -21,7 +23,7 @@ public class nuclearBlockListener extends BlockListener {
 
 
 		if (block.getRelative(0, 1, 0).getTypeId() == 323) {
-			sign = (Sign) block.getRelative(0, 1, 0);
+			sign = (Sign)block.getRelative(0, 1, 0).getState();
 			
 			String[] lines = sign.getLines();
 			if (lines[0].equalsIgnoreCase("[nuke]")) {

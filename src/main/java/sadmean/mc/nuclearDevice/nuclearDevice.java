@@ -1,20 +1,21 @@
 package sadmean.mc.nuclearDevice;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Logger;
 
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
-
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
@@ -62,27 +63,25 @@ public class nuclearDevice extends JavaPlugin {
 	
     
     public void onEnable(){  //onEnable is called after onLoad
-		PluginManager pm = this.getServer().getPluginManager(); //register this plugin
-		pm.registerEvent(Event.Type.REDSTONE_CHANGE, blockListener, Event.Priority.Normal, this); //register our playerListener
 		log_It("info", "Enabled started");
+		getServer().getPluginManager().registerEvents(new nuclearBlockListener(this), this);
 		setupPermissions(); //enabled permissions
 		new File(mainDirectory).mkdir();  //makes our directory if needed
 		if(!configFile.exists()){ //if your config does not exist then ...
 	         try { 
-	        	 configFile.createNewFile(); //... we create it then ...
-	        	 Configuration configYAML = getThisPlugin().getConfiguration(); //... load the blank new file ...
-	        	 configYAML.setProperty("nuclearValues.capTypeID", capTypeID); //..set block type of bomb caps
-	        	 configYAML.setProperty("nuclearValues.payloadTypeID", payloadTypeID); //... then block type of bomb payload
-	        	 configYAML.setProperty("nuclearValues.ignorePermissions", ignorePermissions); //... ignore permissions mod, present or not
-	        	 configYAML.setProperty("nuclearValues.useSimulatedExplosion", useSimulatedExplosion); //... then turn simulatedExplosion on or off
-	        	 configYAML.setProperty("nuclearValues.DestroyBedrock", destroyBedrock); //... should simulated explosions destroy bedrock
-	        	 configYAML.setProperty("nuclearValues.igniteOuterLayer", igniteOuterLayer); //... should simulated explosions leave fire behind
-	        	 configYAML.setProperty("nuclearValues.kickPlayers", kickPlayers); //... should explosions (both sim and non sim) kick players caught inthem?
-	        	 configYAML.setProperty("nuclearValues.smoothExplosions", smoothExplosions); //... should simulated explosions be smooth?
-	        	 configYAML.setProperty("nuclearValues.lowMemoryMethod", lowMemoryMethod); //... use the low memory 'trick' for simulated explosons
-	     		if(!configYAML.save()) { //attempt to save, if fails then
-	     			log_It("severe", "Attempted to save config.yml, got saving error!"); //IT FAILED!
-	     		}
+	        	configFile.createNewFile(); //... we create it then ...
+	        	FileConfiguration configYAML = getThisPlugin().getConfig(); //... load the blank new file ...
+	        	configYAML.set("nuclearValues.capTypeID", capTypeID); //..set block type of bomb caps
+	        	configYAML.set("nuclearValues.payloadTypeID", payloadTypeID); //... then block type of bomb payload
+	        	configYAML.set("nuclearValues.ignorePermissions", ignorePermissions); //... ignore permissions mod, present or not
+	        	configYAML.set("nuclearValues.useSimulatedExplosion", useSimulatedExplosion); //... then turn simulatedExplosion on or off
+	        	configYAML.set("nuclearValues.DestroyBedrock", destroyBedrock); //... should simulated explosions destroy bedrock
+	        	configYAML.set("nuclearValues.igniteOuterLayer", igniteOuterLayer); //... should simulated explosions leave fire behind
+	        	configYAML.set("nuclearValues.kickPlayers", kickPlayers); //... should explosions (both sim and non sim) kick players caught inthem?
+	        	configYAML.set("nuclearValues.smoothExplosions", smoothExplosions); //... should simulated explosions be smooth?
+	        	configYAML.set("nuclearValues.lowMemoryMethod", lowMemoryMethod); //... use the low memory 'trick' for simulated explosons
+	     		configYAML.save(configFile); //attempt to save, if fails then
+	     		     		
 	         } catch (IOException ex) { 
 	             ex.printStackTrace(); //not needed anymore probably
 	         }
@@ -91,8 +90,19 @@ public class nuclearDevice extends JavaPlugin {
 			//it does exist?
 		}
 		//start setting values
-		Configuration configYAML = getThisPlugin().getConfiguration();
-		configYAML.load();
+		FileConfiguration configYAML = getThisPlugin().getConfig();
+		try {
+			configYAML.load(configFile);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		capTypeID = configYAML.getInt("nuclearValues.capTypeID", 0);
 		payloadTypeID = configYAML.getInt("nuclearValues.payloadTypeID", 0);
 		useSimulatedExplosion = configYAML.getBoolean("nuclearValues.useSimulatedExplosion", false);
@@ -190,6 +200,7 @@ public class nuclearDevice extends JavaPlugin {
 	 }
 	 
 	 static boolean updateYAML(String path, int value) {
+		 /** This is cut out because it would have to be redone, if I chose to work on this again
 		 Configuration configYAML = getThisPlugin().getConfiguration();
 		 configYAML.setProperty(path, value);
 		 if (configYAML.save()) {
@@ -198,6 +209,8 @@ public class nuclearDevice extends JavaPlugin {
 		 else {
 			 return false;
 		 }
+		 **/
+		 return false;
 	 }
 	 
 	  private void setupPermissions() {
@@ -214,6 +227,7 @@ public class nuclearDevice extends JavaPlugin {
 
 	 
 	 static boolean updateYAML(String path, boolean value) {
+		 /** This is cut out because it would have to be redone, if I ever chose to work on this again.
 		 Configuration configYAML = getThisPlugin().getConfiguration();
 		 configYAML.setProperty(path, value);
 		 if (configYAML.save()) {
@@ -222,6 +236,8 @@ public class nuclearDevice extends JavaPlugin {
 		 else {
 			 return false;
 		 }
+		 **/
+		 return false;
 	 }
 
 	//logging functions

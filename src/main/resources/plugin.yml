@@ -1,6 +1,6 @@
 name: nuclearDevice
 main: sadmean.mc.nuclearDevice.nuclearDevice
-version: 0.8-SimExplosionTestBuild
+version: 0.9
 author: Choelian
 
 commands:
